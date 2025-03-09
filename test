@@ -1,0 +1,70 @@
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service  # Use edge service
+from selenium.webdriver.edge.options import Options  # Use edge options
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+import time
+import os
+import subprocess
+
+def kill_edge():
+    try:
+        subprocess.run(["taskkill", "/F", "/IM", "msedge.exe", "/T"], shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error: ", e)
+
+if __name__ == "__main__":
+    kill_edge()
+
+
+options = Options()
+options.add_argument(r"user-data-dir=C:\Users\admin\AppData\Local\Microsoft\Edge\User Data")
+options.add_argument(r"--profile-directory=Profile 1")
+service = Service(r"edgedriver_win64\msedgedriver.exe")
+options.add_argument("--remote-debugging-port=9223")
+options.add_argument("--headless")
+options.add_argument("--disable-gpu")
+options.add_argument("window-size=1920x1080")
+
+link = input("Enter the link: ")
+driver = webdriver.Edge(service=service, options=options)
+
+driver.get(link)
+driver.implicitly_wait(5)
+count_area = 0
+while True:
+    try:
+        # Use f-string to include count_area in the selector
+        textarea = driver.find_element(By.CSS_SELECTOR, f'textarea[data-testid="offer-edit-account-{count_area}-textarea-rv79"]')
+        count_area += 1
+    except NoSuchElementException:
+        break  # Exit the loop
+
+    time.sleep(0.5)  # Wait before checking again
+
+
+add_more = driver.find_element(By.CSS_SELECTOR, ".add-row.bold")
+place_offers = driver.find_element(By.XPATH, "//button[@type='button' and @aria-label='Place offer' and contains(@class, 'button__primary') and .//span[normalize-space()='Place offer']]")
+
+with open('account.txt', 'r') as file:
+    content = file.readlines()
+check = 1
+for line in content:
+    if count_area != 1 or check == 0:
+        add_more.click() 
+    elif count_area == 1 and check == 1: 
+        count_area -= 1
+        check = 0
+    type_here = driver.find_element(By.CSS_SELECTOR, f'textarea[data-testid="offer-edit-account-{count_area}-textarea-rv79"]') 
+    count_area += 1
+    type_here.send_keys(line.strip() + "\n(username:password)\n(Make sure to follow the product description !! Thank you and have a nice day : D)")
+    print("successfully added " + line.strip())
+    time.sleep(0.01)
+
+place_offers.click()
+
+time.sleep(5)
+
+print("Done")
+driver.quit()   
+
