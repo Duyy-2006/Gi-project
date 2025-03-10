@@ -99,12 +99,12 @@ def change_acc():
 
 if __name__ == "__main__":
     while True:
-        # if not is_genshin_running():
-        #     print("Genshin Impact is not running. Launching...")
-        #     launch_genshin()
-        # else:
-        #     print("Genshin Impact is already running.")
-        # time.sleep(30)
+        if not is_genshin_running():
+            print("Genshin Impact is not running. Launching...")
+            launch_genshin()
+        else:
+            print("Genshin Impact is already running.")
+        time.sleep(30)
         for _ in range(20):
             click_image(r"gi_image/gi_x2.png")
             click_image(r"gi_image/gi_x.png")
